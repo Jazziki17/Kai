@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAI — Neural Interface</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Scanline overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Particle canvas (background) -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Thought cloud canvas (mid-layer) -->
+    <canvas id="thought-canvas"></canvas>
+
+    <!-- Vignette overlay -->
+    <div class="vignette"></div>
+
+    <!-- Main HUD -->
+    <div class="hud">
+
+        <!-- Top bar -->
+        <header class="top-bar">
+            <div class="top-bar__left">
+                <div class="logo">
+                    <span class="logo__icon">◆</span>
+                    <span class="logo__text">KAI</span>
+                    <span class="logo__sub">NEURAL INTERFACE v0.1</span>
+                </div>
+            </div>
+            <div class="top-bar__center">
+                <div class="status-indicator" id="system-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">SYSTEM ONLINE</span>
+                </div>
+            </div>
+            <div class="top-bar__right">
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="date" id="date">2026.02.08</div>
+            </div>
+        </header>
+
+        <!-- Main grid layout -->
+        <main class="dashboard">
+
+            <!-- Left column — Module status -->
+            <section class="panel panel--modules">
+                <div class="panel__header">
+                    <span class="panel__icon">⬡</span>
+                    <span class="panel__title">ACTIVE MODULES</span>
+                    <span class="panel__badge" id="module-count">4</span>
+                </div>
+                <div class="panel__content">
+                    <div class="module-card" data-module="voice" id="mod-voice">
+                        <div class="module-card__indicator"></div>
+                        <div class="module-card__info">
+                            <div class="module-card__name">VOICE LISTENER</div>
+                            <div class="module-card__status">Monitoring audio input</div>
+                        </div>
+                        <div class="module-card__viz">
+                            <canvas class="waveform" id="waveform-voice" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="module-card" data-module="speech" id="mod-speech">
+                        <div class="module-card__indicator"></div>
+                        <div class="module-card__info">
+                            <div class="module-card__name">SPEECH ENGINE</div>
+                            <div class="module-card__status">NLP model loaded</div>
+                        </div>
+                        <div class="module-card__viz">
+                            <canvas class="waveform" id="waveform-speech" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="module-card" data-module="vision" id="mod-vision">
+                        <div class="module-card__indicator"></div>
+                        <div class="module-card__info">
+                            <div class="module-card__name">VISION CORE</div>
+                            <div class="module-card__status">Camera stream active</div>
+                        </div>
+                        <div class="module-card__viz">
+                            <canvas class="waveform" id="waveform-vision" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="module-card" data-module="io" id="mod-io">
+                        <div class="module-card__indicator"></div>
+                        <div class="module-card__info">
+                            <div class="module-card__name">FILE SYSTEM</div>
+                            <div class="module-card__status">Read/write ready</div>
+                        </div>
+                        <div class="module-card__viz">
+                            <canvas class="waveform" id="waveform-io" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Center — Main display -->
+            <section class="panel panel--center">
+                <div class="center-display">
+                    <!-- Kai core visualizer -->
+                    <div class="core-orb" id="core-orb">
+                        <div class="core-orb__ring core-orb__ring--outer"></div>
+                        <div class="core-orb__ring core-orb__ring--middle"></div>
+                        <div class="core-orb__ring core-orb__ring--inner"></div>
+                        <div class="core-orb__center">
+                            <span>KAI</span>
+                        </div>
+                    </div>
+
+                    <!-- Command input -->
+                    <div class="command-input">
+                        <div class="command-input__prefix">▸</div>
+                        <input type="text" id="command-field" placeholder="Speak or type a command..." autocomplete="off" spellcheck="false">
+                        <div class="command-input__suffix" id="send-btn">⏎</div>
+                    </div>
+
+                    <!-- Response area -->
+                    <div class="response-area" id="response-area">
+                        <div class="response-line response-line--system">
+                            <span class="response-prefix">[KAI]</span>
+                            Neural interface initialized. All systems nominal.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right column — Thought stream -->
+            <section class="panel panel--thoughts">
+                <div class="panel__header">
+                    <span class="panel__icon">◈</span>
+                    <span class="panel__title">THOUGHT STREAM</span>
+                    <span class="panel__badge pulse" id="thought-count">0</span>
+                </div>
+                <div class="panel__content">
+                    <div class="thought-stream" id="thought-stream">
+                        <!-- Thoughts injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom bar — Metrics -->
+        <footer class="bottom-bar">
+            <div class="metric">
+                <span class="metric__label">CPU</span>
+                <div class="metric__bar"><div class="metric__fill" id="cpu-bar" style="width: 23%"></div></div>
+                <span class="metric__value" id="cpu-val">23%</span>
+            </div>
+            <div class="metric">
+                <span class="metric__label">MEM</span>
+                <div class="metric__bar"><div class="metric__fill" id="mem-bar" style="width: 41%"></div></div>
+                <span class="metric__value" id="mem-val">41%</span>
+            </div>
+            <div class="metric">
+                <span class="metric__label">NET</span>
+                <div class="metric__bar"><div class="metric__fill" id="net-bar" style="width: 12%"></div></div>
+                <span class="metric__value" id="net-val">12%</span>
+            </div>
+            <div class="metric">
+                <span class="metric__label">EVENTS</span>
+                <span class="metric__value metric__value--accent" id="event-count">0</span>
+            </div>
+            <div class="metric">
+                <span class="metric__label">UPTIME</span>
+                <span class="metric__value" id="uptime">00:00:00</span>
+            </div>
+            <div class="metric">
+                <span class="metric__label">LATENCY</span>
+                <span class="metric__value" id="latency">2ms</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="js/particles.js"></script>
+    <script src="js/thoughts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
