@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Model files (large binaries)
+models/
+*.bin
+*.onnx
+*.pt
+*.pth
+*.safetensors
+
+# Audio / Video captures
+recordings/
+captures/
+*.wav
+*.mp3
+*.mp4
+*.avi
+
+# Coverage and test artifacts
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.tox/
+.nox/
+
+# Distribution
+*.tar.gz
+*.zip
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Documentation builds
+docs/_build/
+site/
