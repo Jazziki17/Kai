@@ -81,3 +81,4 @@ htmlcov/
 # Documentation builds
 docs/_build/
 site/
+desktop/node_modules/
