@@ -3,7 +3,6 @@
  */
 
 import { BrowserWindow, screen } from 'electron'
-import { join } from 'path'
 
 const PORT = 8420
 let mainWindow: BrowserWindow | null = null
@@ -24,17 +23,12 @@ export function createWindow(): BrowserWindow {
     skipTaskbar: false,
     backgroundColor: '#00000000',
     webPreferences: {
-      preload: join(__dirname, '..', 'preload', 'index.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   })
 
-  // Load the orb UI from the Python server
-  mainWindow.loadURL(`http://localhost:${PORT}/ui`)
-
-  // Allow dragging from anywhere in the window
-  mainWindow.setMovable(true)
+  mainWindow.loadURL(`http://localhost:${PORT}/ui/`)
 
   mainWindow.on('closed', () => {
     mainWindow = null

@@ -47,18 +47,22 @@ body {
     letter-spacing: 8px;
 }
 
-/* Transcript — shows recognized speech */
+/* Transcript — shows command responses */
 .transcript {
     position: fixed;
     bottom: 7%;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 300;
-    color: rgba(180, 200, 220, 0.6);
+    color: rgba(180, 200, 220, 0.7);
     text-align: center;
-    max-width: 60%;
+    max-width: 70%;
+    max-height: 40vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.5;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.5s ease;

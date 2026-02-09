@@ -116,10 +116,16 @@ class EventBus:
         # Call all handlers for this event type concurrently
         handlers = self._subscribers.get(event_type, [])
         if handlers:
-            await asyncio.gather(
+            results = await asyncio.gather(
                 *(handler(data) for handler in handlers),
                 return_exceptions=True,  # Don't let one failing handler crash the rest
             )
+            # Log any exceptions from handlers
+            for i, result in enumerate(results):
+                if isinstance(result, Exception):
+                    import traceback
+                    tb = ''.join(traceback.format_exception(type(result), result, result.__traceback__))
+                    print(f"[EventBus] Handler error for '{event_type}': {tb}")
 
     def get_history(self) -> list[dict[str, Any]]:
         """Return the recent event history (useful for debugging)."""

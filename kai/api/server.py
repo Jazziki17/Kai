@@ -10,6 +10,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from kai.api.routes import commands, files, spreadsheets, status
@@ -46,18 +47,30 @@ async def lifespan(app: FastAPI):
 
 
 async def _start_engine(eng: KaiEngine):
-    """Run engine startup in background so server starts immediately."""
+    """
+    Start only the modules that do real work.
+    Simulation modules (voice, speech, vision) are NOT loaded —
+    they create a feedback loop of fake events and TTS spam.
+    """
     try:
-        await eng._discover_and_register_modules()
-        for module in eng._modules:
-            try:
-                await module.start()
-                logger.info(f"  [OK] {module.name}")
-            except Exception as e:
-                logger.error(f"  [FAIL] {module.name}: {e}")
+        # Only load FileManager — the one module that does real I/O
+        try:
+            from kai.io.file_manager import FileManager
+            fm = FileManager(event_bus=eng.event_bus)
+            eng.register_module(fm)
+            await fm.start()
+            logger.info("  [OK] FileManager")
+        except Exception as e:
+            logger.warning(f"  [SKIP] FileManager: {e}")
+
+        # Start the command handler (processes real commands)
+        from kai.api.command_handler import CommandHandler
+        handler = CommandHandler(eng.event_bus)
+        await handler.start()
+        logger.info("  [OK] CommandHandler")
 
         await eng.event_bus.publish("system.ready", {
-            "modules_loaded": [m.name for m in eng._modules],
+            "modules_loaded": [m.name for m in eng._modules] + ["CommandHandler"],
         })
         eng._running = True
         logger.info("Kai engine ready.")
@@ -92,7 +105,17 @@ app.include_router(commands.router, prefix="/api/commands")
 app.include_router(spreadsheets.router, prefix="/api/files")
 app.include_router(ws_router)
 
-# Serve the orb UI at /ui (and also at root for convenience)
+# Redirect bare paths to trailing slash so StaticFiles serves index.html
+@app.get("/ui")
+async def redirect_ui():
+    return RedirectResponse(url="/ui/")
+
+
+@app.get("/")
+async def redirect_root():
+    return RedirectResponse(url="/ui/")
+
+
+# Serve the orb UI at /ui
 if STATIC_DIR.exists():
     app.mount("/ui", StaticFiles(directory=str(STATIC_DIR), html=True), name="ui")
-    app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="root")

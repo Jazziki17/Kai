@@ -353,25 +353,19 @@
         const { type, data } = msg;
 
         switch (type) {
-            case 'voice.amplitude':
-                targetAmp = Math.min(1, Math.max(0, data.amplitude || 0));
-                break;
-
-            case 'voice.detected':
-                startSpeaking();
-                break;
-
-            case 'speech.recognized':
-                showTranscript(data.text || 'Speech recognized.');
-                break;
-
-            case 'speech.respond':
-                showTranscript(data.text || '');
+            case 'command.response':
+                // Real response from CommandHandler
                 stopSpeaking();
+                showTranscript(data.text || '');
+                // Pulse the orb to show activity
+                targetAmp = 0.6;
+                setTimeout(() => { targetAmp = 0; }, 600);
                 break;
 
             case 'system.ready':
                 showTranscript('Kai is ready.');
+                targetAmp = 0.4;
+                setTimeout(() => { targetAmp = 0; }, 500);
                 break;
 
             case 'system.module_error':
@@ -383,11 +377,7 @@
                 break;
 
             default:
-                // Other events pulse the orb gently
-                if (targetAmp < 0.1) {
-                    targetAmp = 0.2;
-                    setTimeout(() => { targetAmp = 0; }, 400);
-                }
+                break;
         }
     }
 
@@ -409,13 +399,21 @@
         statusEl.textContent = 'LISTENING';
     }
 
+    let transcriptTimer = null;
+
     function showTranscript(text) {
+        // Clear any pending hide
+        if (transcriptTimer) clearTimeout(transcriptTimer);
+
         transcriptEl.textContent = text;
+        transcriptEl.style.whiteSpace = 'pre-wrap';
         transcriptEl.classList.add('visible');
 
-        setTimeout(() => {
+        // Longer display for longer text
+        const displayTime = Math.max(4000, Math.min(text.length * 50, 12000));
+        transcriptTimer = setTimeout(() => {
             transcriptEl.classList.remove('visible');
-        }, 3000);
+        }, displayTime);
     }
 
     // Fallback: simulate voice if no WebSocket server available
@@ -466,19 +464,17 @@
             commandBar.classList.remove('visible');
             commandVisible = false;
 
-            // Send command via WebSocket if connected
+            // Show what the user said
+            showTranscript('> ' + text);
+
+            // Send command via WebSocket
             if (ws && wsConnected) {
                 ws.send(JSON.stringify({ type: 'command', command: text }));
             }
 
-            // Trigger voice reaction
+            // Show thinking state — LLM is processing
             startSpeaking();
-            showTranscript(text);
-
-            setTimeout(() => {
-                stopSpeaking();
-                showTranscript('Command processed.');
-            }, 1500);
+            statusEl.textContent = 'THINKING';
         }
     });
 

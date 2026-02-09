@@ -19,8 +19,20 @@ export class PythonBridge {
   private restartCount = 0
   private stopping = false
 
+  private externalServer = false
+
   async start(): Promise<void> {
     this.stopping = false
+
+    // Check if server is already running (started externally)
+    const alreadyUp = await this.healthCheck()
+    if (alreadyUp) {
+      console.log('[PythonBridge] Server already running — attaching to existing instance')
+      this.externalServer = true
+      this.startHealthCheck()
+      return
+    }
+
     this.spawn()
     await this.waitForReady()
     this.startHealthCheck()
@@ -29,6 +41,11 @@ export class PythonBridge {
   async stop(): Promise<void> {
     this.stopping = true
     this.stopHealthCheck()
+
+    if (this.externalServer) {
+      // Don't kill an externally managed server
+      return
+    }
 
     if (this.process) {
       this.process.kill('SIGTERM')

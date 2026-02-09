@@ -30,7 +30,7 @@ async def broadcast(event_type: str, data: dict):
         except Exception:
             disconnected.add(ws)
 
-    _clients -= disconnected
+    _clients.difference_update(disconnected)
 
 
 async def _event_forwarder(data: dict):
@@ -40,17 +40,11 @@ async def _event_forwarder(data: dict):
 
 
 def _install_event_bridge(event_bus):
-    """Subscribe a catch-all forwarder to common event types."""
+    """Subscribe to events that matter and forward them to WebSocket clients."""
     event_types = [
         "system.ready",
         "system.module_error",
-        "voice.detected",
-        "voice.amplitude",
-        "speech.recognized",
-        "speech.respond",
-        "intent.classified",
-        "vision.motion",
-        "vision.gesture",
+        "command.response",
         "file.read_response",
     ]
 

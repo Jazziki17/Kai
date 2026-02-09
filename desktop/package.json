@@ -4,35 +4,12 @@
   "description": "Kai AI Assistant — Native Desktop App",
   "main": "dist/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "start": "electron .",
-    "preview": "electron-vite preview",
-    "package": "electron-builder --mac",
-    "package:all": "electron-builder --mac --win --linux"
+    "build": "tsc",
+    "start": "npm run build && electron .",
+    "dev": "tsc && electron ."
   },
-  "dependencies": {},
   "devDependencies": {
     "electron": "^33.0.0",
-    "electron-builder": "^25.0.0",
-    "electron-vite": "^2.3.0",
     "typescript": "^5.5.0"
-  },
-  "build": {
-    "appId": "com.kai.assistant",
-    "productName": "Kai",
-    "mac": {
-      "category": "public.app-category.utilities",
-      "icon": "resources/icon.icns",
-      "target": ["dmg", "zip"]
-    },
-    "win": {
-      "target": ["nsis"],
-      "icon": "resources/icon.ico"
-    },
-    "linux": {
-      "target": ["AppImage"],
-      "icon": "resources/icon.png"
-    }
   }
 }
