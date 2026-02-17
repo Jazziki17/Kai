@@ -1034,6 +1034,294 @@ body:hover .nav-toggle:hover {
     padding: 40px 20px;
 }
 
+/* ─── Vision HUD ─────────────────────────── */
+
+.vision-container {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.vision-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.vision-header .view-title {
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.vision-modes {
+    display: flex;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    padding: 3px;
+}
+
+.vision-mode-btn {
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.35);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vision-mode-btn:hover {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.vision-mode-btn.active {
+    background: rgba(0, 217, 255, 0.12);
+    color: #00D9FF;
+}
+
+.vision-feed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 217, 255, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.vision-feed video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    transform: scaleX(-1);
+}
+
+.vision-feed canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    transform: scaleX(-1);
+}
+
+.vision-scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    display: none;
+}
+
+.vision-no-camera {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+}
+
+.vision-no-camera svg {
+    opacity: 0.3;
+}
+
+.vision-no-camera span {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.vision-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.vision-stat {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.vision-stat-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 4px;
+}
+
+.vision-stat-value {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    color: #00D9FF;
+}
+
+.vision-detections {
+    margin-top: 12px;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.vision-det-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.vision-det-item:last-child {
+    border-bottom: none;
+}
+
+.vision-det-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+.vision-det-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.vision-det-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0, 217, 255, 0.4), rgba(0, 217, 255, 0.8));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.vision-det-conf {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(0, 217, 255, 0.7);
+    min-width: 32px;
+    text-align: right;
+}
+
+.vision-controls {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.vision-start-btn {
+    padding: 10px 24px;
+    background: rgba(0, 217, 255, 0.08);
+    border: 1px solid rgba(0, 217, 255, 0.25);
+    border-radius: 20px;
+    color: #00D9FF;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.vision-start-btn:hover {
+    background: rgba(0, 217, 255, 0.15);
+    border-color: rgba(0, 217, 255, 0.4);
+}
+
+.vision-start-btn.active {
+    background: rgba(255, 80, 80, 0.08);
+    border-color: rgba(255, 80, 80, 0.25);
+    color: rgba(255, 120, 120, 0.8);
+}
+
+.vision-start-btn.active:hover {
+    background: rgba(255, 80, 80, 0.15);
+    border-color: rgba(255, 80, 80, 0.4);
+}
+
+.vision-slider-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vision-slider-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 1px;
+}
+
+.vision-slider-label span {
+    color: #00D9FF;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.vision-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    outline: none;
+}
+
+.vision-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #00D9FF;
+    cursor: pointer;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.vision-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #00D9FF;
+    cursor: pointer;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
 /* ─── Fullscreen Mode ────────────────────── */
 
 body.fullscreen {

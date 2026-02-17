@@ -20,6 +20,7 @@ from nex.api.routes.modules import router as modules_router
 from nex.api.routes.history import router as history_router
 from nex.api.routes.settings import router as settings_router
 from nex.api.websocket_handler import router as ws_router
+from nex.api.vision_ws import vision_ws_router
 from nex.core.engine import NexEngine
 from nex.utils.logger import setup_logger
 
@@ -169,6 +170,7 @@ app.include_router(logs_router, prefix="/api")
 app.include_router(modules_router, prefix="/api")
 app.include_router(history_router, prefix="/api")
 app.include_router(ws_router)
+app.include_router(vision_ws_router)
 
 
 # ─── Auth token endpoint (localhost-only) ──────────────────

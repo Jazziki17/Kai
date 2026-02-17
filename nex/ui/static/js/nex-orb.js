@@ -16,7 +16,7 @@
     let targetAmp = 0;
     let isListening = true;
 
-    // Current view: 'orb' | 'dashboard' | 'services' | 'logs' | 'settings'
+    // Current view: 'orb' | 'dashboard' | 'services' | 'logs' | 'vision' | 'settings'
     let currentView = 'orb';
 
     function getBaseRadius() {
@@ -242,12 +242,14 @@
         const dashView = document.getElementById('dashboard-view');
         const servView = document.getElementById('services-view');
         const logsView = document.getElementById('logs-view');
+        const visionView = document.getElementById('vision-view');
         const settView = document.getElementById('settings-view');
 
         // Toggle overlays
         dashView.classList.toggle('active', view === 'dashboard');
         servView.classList.toggle('active', view === 'services');
         logsView.classList.toggle('active', view === 'logs');
+        visionView.classList.toggle('active', view === 'vision');
         settView.classList.toggle('active', view === 'settings');
         canvas.classList.toggle('dimmed', view !== 'orb');
 
@@ -266,7 +268,7 @@
     });
 
     // Tab key cycles views
-    const views = ['orb', 'dashboard', 'services', 'logs', 'settings'];
+    const views = ['orb', 'dashboard', 'services', 'logs', 'vision', 'settings'];
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Tab' && !commandInput.matches(':focus')) {
             e.preventDefault();

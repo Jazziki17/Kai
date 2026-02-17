@@ -24,6 +24,9 @@
         <button class="nav-btn" data-view="logs" title="Logs">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </button>
+        <button class="nav-btn" data-view="vision" title="Vision">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
         <button class="nav-btn" data-view="settings" title="Settings">
             <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
@@ -156,6 +159,55 @@
         </div>
     </div>
 
+    <!-- Vision View -->
+    <div class="view-overlay" id="vision-view">
+        <div class="vision-container">
+            <div class="vision-header">
+                <div class="view-title">VISION</div>
+                <div class="vision-modes">
+                    <button class="vision-mode-btn active" data-mode="detect">DETECT</button>
+                    <button class="vision-mode-btn" data-mode="segment">SEGMENT</button>
+                    <button class="vision-mode-btn" data-mode="classify">CLASSIFY</button>
+                </div>
+            </div>
+            <div class="vision-feed">
+                <video id="vision-video" autoplay playsinline muted></video>
+                <canvas id="vision-canvas"></canvas>
+                <div class="vision-scanline" id="vision-scanline"></div>
+                <div class="vision-no-camera" id="vision-no-camera">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Camera inactive</span>
+                </div>
+            </div>
+            <div class="vision-stats" id="vision-stats">
+                <div class="vision-stat">
+                    <span class="vision-stat-label">FPS</span>
+                    <span class="vision-stat-value" id="vision-fps">0</span>
+                </div>
+                <div class="vision-stat">
+                    <span class="vision-stat-label">INFERENCE</span>
+                    <span class="vision-stat-value" id="vision-inference">0ms</span>
+                </div>
+                <div class="vision-stat">
+                    <span class="vision-stat-label">OBJECTS</span>
+                    <span class="vision-stat-value" id="vision-objects">0</span>
+                </div>
+                <div class="vision-stat">
+                    <span class="vision-stat-label">CONFIDENCE</span>
+                    <span class="vision-stat-value" id="vision-confidence">0%</span>
+                </div>
+            </div>
+            <div class="vision-detections" id="vision-detections"></div>
+            <div class="vision-controls">
+                <button class="vision-start-btn" id="vision-start-btn">Start Camera</button>
+                <div class="vision-slider-group">
+                    <label class="vision-slider-label">Confidence: <span id="vision-conf-value">25%</span></label>
+                    <input type="range" id="vision-conf-slider" class="vision-slider" min="5" max="95" value="25" step="5">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- History Drawer -->
     <div class="history-drawer" id="history-drawer">
         <div class="history-header">
@@ -178,6 +230,7 @@
     <script src="js/nex-services.js"></script>
     <script src="js/nex-logs.js"></script>
     <script src="js/nex-settings.js"></script>
+    <script src="js/nex-vision.js"></script>
     <script src="js/nex-conversation.js"></script>
     <script src="js/nex-history.js"></script>
 </body>
