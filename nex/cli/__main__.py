@@ -16,13 +16,14 @@ from pathlib import Path
 from nex.cli import renderer
 from nex.cli.agent import Agent
 from nex.cli.session import Session
+from nex.cli import data_tools
 
 
 DEFAULT_MODEL = "llama3.2"
 
-SYSTEM_PROMPT_TEMPLATE = """You are Nex — an expert software engineer working directly in the user's terminal.
+SYSTEM_PROMPT_TEMPLATE = """You are Nex — an expert software engineer and data processing agent working directly in the user's terminal.
 You have full access to their codebase at {cwd}.
-You can read files, write files, run shell commands, search code, and manage projects.
+You can read files, write files, run shell commands, search code, manage projects, and process data files.
 
 Rules:
 - When asked to DO something (create file, edit code, run command) you MUST use tools. Never claim you did something without doing it.
@@ -31,6 +32,16 @@ Rules:
 - After making changes, verify them (run tests, check output) when appropriate.
 - Be concise. Show your work through tool calls, not lengthy explanations.
 - If approaching context limits, mention it proactively.
+
+Data Processing Rules:
+- ALWAYS inspect_file before processing any data file. Never guess column names.
+- Use run_python for merges, transforms, filters, aggregations on Excel/CSV/JSON files.
+- Use run_sql when the user explicitly wants SQL, or for complex joins.
+- After processing, use preview_data to show results and save_output to deliver files.
+- Output goes to ./output/ — never modify original files in-place.
+- Show the Python/SQL script before running it. The user should learn from the code.
+- If a script fails, diagnose the error, fix the script, and retry (up to 3 times).
+- After merges/transforms, report row counts, match rates, and data quality.
 
 Platform: {platform}
 User: {user}
@@ -72,6 +83,7 @@ SLASH_COMMANDS = {
     "/status": "Show session info and modified files",
     "/sessions": "List saved sessions",
     "/resume": "Resume a saved session (/resume <id>)",
+    "/scripts": "List saved data processing scripts",
     "/init": "Create a NEX.md config file in the project root",
     "/quit": "Exit Nex CLI",
 }
@@ -138,6 +150,9 @@ async def handle_slash(command: str, session: Session, agent: Agent, cwd: str) -
                     return loaded  # Special return
                 else:
                     renderer.error(f"Session '{arg.strip()}' not found.")
+
+        case "/scripts":
+            print(data_tools.list_scripts(cwd))
 
         case "/init":
             config_path = Path(cwd) / "NEX.md"

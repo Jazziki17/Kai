@@ -180,6 +180,36 @@ def show_diff(old_content: str, new_content: str, filepath: str):
     return added, removed
 
 
+def script_preview(code: str, lang: str = "python", description: str = ""):
+    """Display a script with a box before execution."""
+    lang_colors = {"python": YELLOW, "sql": CYAN, "javascript": GREEN}
+    color = lang_colors.get(lang, DIM)
+    label = lang.capitalize()
+    if description:
+        label += f" — {description}"
+
+    print(f"\n  {color}{DOT_ACTION}{RESET} {BOLD}{label}{RESET}")
+    print(f"  {DIM}{'─' * 50}{RESET}")
+    for line in code.strip().splitlines():
+        print(f"  {DIM}│{RESET} {line}")
+    print(f"  {DIM}{'─' * 50}{RESET}")
+
+
+def data_quality_report(title: str, stats: dict):
+    """Display a data quality report after merge/transform."""
+    print(f"\n  {BOLD}{CYAN}Data Quality Report: {title}{RESET}")
+    print(f"  {'━' * 45}")
+    for key, val in stats.items():
+        if key == "warnings":
+            if val:
+                print(f"  {YELLOW}Warnings:{RESET}")
+                for w in val:
+                    print(f"    {YELLOW}• {w}{RESET}")
+        else:
+            print(f"  {DIM}{key + ':':<30}{RESET} {val}")
+    print(f"  {'━' * 45}\n")
+
+
 def _shorten_path(path: str) -> str:
     """Shorten path for display."""
     home = os.path.expanduser("~")

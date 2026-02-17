@@ -167,5 +167,18 @@ def _summarize_args(name: str, args: dict) -> str:
             return args.get("pattern", "")
         case "list_directory":
             return args.get("path", ".")
+        case "inspect_file":
+            return args.get("path", "")
+        case "run_python":
+            return args.get("description", "script")[:50]
+        case "run_sql":
+            q = args.get("query", "")
+            return q[:60] + ("..." if len(q) > 60 else "")
+        case "run_node":
+            return args.get("description", "script")[:50]
+        case "preview_data":
+            return args.get("path", "")
+        case "save_output":
+            return args.get("path", "")
         case _:
             return ""

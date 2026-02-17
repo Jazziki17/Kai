@@ -82,3 +82,8 @@ htmlcov/
 docs/_build/
 site/
 desktop/node_modules/
+
+# Nex CLI temp files and output
+.nex/tmp/
+.nex/scripts/
+output/

@@ -1,5 +1,5 @@
 """
-CLI Tools — File operations, bash, search, glob for the agentic loop.
+CLI Tools — File operations, bash, search, glob, and data tools for the agentic loop.
 """
 
 import asyncio
@@ -9,6 +9,7 @@ import glob as globlib
 from pathlib import Path
 
 from nex.cli import renderer
+from nex.cli import data_tools
 
 
 # ─── Tool Definitions (Ollama format) ──────────────────────
@@ -70,6 +71,56 @@ TOOLS = [
             "path": {"type": "string", "description": "Directory path (default: cwd)"},
         }, "required": []},
     }},
+    # ─── Data Processing Tools ────────────────────────────
+    {"type": "function", "function": {
+        "name": "inspect_file",
+        "description": "Inspect a data file (Excel, CSV, JSON, SQLite, Parquet). Shows columns, types, row counts, sample data. Always use this before processing data files.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string", "description": "Path to data file (.xlsx, .csv, .json, .db, .parquet, .tsv)"},
+            "sample_rows": {"type": "integer", "description": "Number of sample rows to show (default: 5)"},
+        }, "required": ["path"]},
+    }},
+    {"type": "function", "function": {
+        "name": "run_python",
+        "description": "Execute a Python script to process data. Use for merging, filtering, transforming, aggregating Excel/CSV/JSON files. The script runs in the project directory. Always inspect files first to know exact column names. Output files to the current directory.",
+        "parameters": {"type": "object", "properties": {
+            "script": {"type": "string", "description": "Full Python script to execute"},
+            "description": {"type": "string", "description": "Short description of what the script does"},
+        }, "required": ["script"]},
+    }},
+    {"type": "function", "function": {
+        "name": "run_sql",
+        "description": "Execute SQL against data files or SQLite databases. For CSV/Excel files, they are auto-loaded into temporary SQLite tables (table name = filename without extension). For .db files, queries run directly.",
+        "parameters": {"type": "object", "properties": {
+            "query": {"type": "string", "description": "SQL query to execute"},
+            "source_paths": {"type": "array", "items": {"type": "string"}, "description": "Paths to data files to load as tables (.csv, .xlsx, .db)"},
+            "output_path": {"type": "string", "description": "Optional path to save results (.csv or .xlsx)"},
+        }, "required": ["query"]},
+    }},
+    {"type": "function", "function": {
+        "name": "run_node",
+        "description": "Execute a Node.js script for JSON processing, API calls, or JS-native operations.",
+        "parameters": {"type": "object", "properties": {
+            "script": {"type": "string", "description": "Full JavaScript/Node.js script to execute"},
+            "description": {"type": "string", "description": "Short description of what the script does"},
+        }, "required": ["script"]},
+    }},
+    {"type": "function", "function": {
+        "name": "preview_data",
+        "description": "Show a readable ASCII table preview of a data file (Excel, CSV, JSON, Parquet). Shows first N rows in a formatted table.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string", "description": "Path to data file"},
+            "rows": {"type": "integer", "description": "Number of rows to preview (default: 10)"},
+            "sheet": {"type": "string", "description": "Sheet name for Excel files (default: first sheet)"},
+        }, "required": ["path"]},
+    }},
+    {"type": "function", "function": {
+        "name": "save_output",
+        "description": "Save a result file to ./output/ directory and optionally open it. Use after processing to deliver the final output to the user.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string", "description": "Path to the result file to save"},
+        }, "required": ["path"]},
+    }},
 ]
 
 
@@ -93,6 +144,19 @@ async def execute(name: str, args: dict, cwd: str, auto_approve: bool = False) -
                 return _glob(args.get("pattern", ""), cwd)
             case "list_directory":
                 return _list_directory(args.get("path", "."), cwd)
+            # ─── Data Tools ──────────────────────────
+            case "inspect_file":
+                return data_tools.inspect_file(args.get("path", ""), cwd, args.get("sample_rows", 5))
+            case "run_python":
+                return await data_tools.run_python(args.get("script", ""), cwd, args.get("description", ""), auto_approve)
+            case "run_sql":
+                return await data_tools.run_sql(args.get("query", ""), cwd, args.get("source_paths"), args.get("output_path", ""), auto_approve)
+            case "run_node":
+                return await data_tools.run_node(args.get("script", ""), cwd, args.get("description", ""), auto_approve)
+            case "preview_data":
+                return data_tools.preview_data(args.get("path", ""), cwd, args.get("rows", 10), args.get("sheet"))
+            case "save_output":
+                return data_tools.save_output(args.get("path", ""), cwd, auto_approve)
             case _:
                 return f"Error: unknown tool '{name}'"
     except Exception as e:
