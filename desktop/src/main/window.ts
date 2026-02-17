@@ -1,8 +1,10 @@
 /**
  * Window — Frameless transparent BrowserWindow for the floating orb.
+ * Supports fullscreen toggle via IPC, keyboard shortcut, and tray menu.
  */
 
-import { BrowserWindow, screen } from 'electron'
+import { BrowserWindow, screen, ipcMain, globalShortcut } from 'electron'
+import * as path from 'path'
 
 const PORT = 8420
 let mainWindow: BrowserWindow | null = null
@@ -18,13 +20,17 @@ export function createWindow(): BrowserWindow {
     frame: false,
     transparent: true,
     resizable: true,
+    fullscreenable: true,
     alwaysOnTop: false,
     hasShadow: false,
     skipTaskbar: false,
     backgroundColor: '#00000000',
+    titleBarStyle: 'hidden',
+    trafficLightPosition: { x: -20, y: -20 }, // hide native buttons off-screen
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.js'),
     },
   })
 
@@ -34,7 +40,43 @@ export function createWindow(): BrowserWindow {
     mainWindow = null
   })
 
+  // Adjust opacity/vibrancy when entering/leaving fullscreen
+  mainWindow.on('enter-full-screen', () => {
+    mainWindow?.setBackgroundColor('#000000')
+    mainWindow?.webContents.send('fullscreen-change', true)
+  })
+
+  mainWindow.on('leave-full-screen', () => {
+    mainWindow?.setBackgroundColor('#00000000')
+    mainWindow?.webContents.send('fullscreen-change', false)
+  })
+
+  // Register global shortcut for fullscreen toggle
+  globalShortcut.register('CmdOrCtrl+Shift+F', () => {
+    toggleFullscreen()
+  })
+
+  // IPC handler for renderer-triggered fullscreen toggle
+  ipcMain.on('toggle-fullscreen', () => {
+    toggleFullscreen()
+  })
+
   return mainWindow
+}
+
+export function toggleFullscreen(): void {
+  if (!mainWindow) return
+  const isFull = mainWindow.isFullScreen()
+  mainWindow.setFullScreen(!isFull)
+}
+
+export function maximizeWindow(): void {
+  if (!mainWindow) return
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize()
+  } else {
+    mainWindow.maximize()
+  }
 }
 
 export function getWindow(): BrowserWindow | null {
@@ -53,4 +95,8 @@ export function toggleWindow(): void {
     mainWindow.show()
     mainWindow.focus()
   }
+}
+
+export function isFullscreen(): boolean {
+  return mainWindow?.isFullScreen() ?? false
 }

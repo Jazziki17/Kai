@@ -1034,6 +1034,41 @@ body:hover .nav-toggle:hover {
     padding: 40px 20px;
 }
 
+/* ─── Fullscreen Mode ────────────────────── */
+
+body.fullscreen {
+    background: #000;
+}
+
+body.fullscreen #canvas {
+    opacity: 1;
+}
+
+body.fullscreen .nav-toggle {
+    bottom: 32px;
+}
+
+body.fullscreen .status {
+    bottom: 14%;
+}
+
+body.fullscreen .transcript {
+    bottom: 9%;
+}
+
+body.fullscreen .conversation-feed {
+    top: 24px;
+    left: 32px;
+}
+
+body.fullscreen .view-overlay {
+    padding: 80px 40px 40px;
+}
+
+#fullscreen-btn svg {
+    transition: opacity 0.2s ease;
+}
+
 /* ─── Scrollbar ──────────────────────────── */
 
 ::-webkit-scrollbar {

@@ -487,6 +487,31 @@
         }
     });
 
+    // ─── Fullscreen Toggle ───────────────────────────────
+
+    const fsBtn = document.getElementById('fullscreen-btn');
+    const fsExpandIcon = document.getElementById('fs-expand-icon');
+    const fsShrinkIcon = document.getElementById('fs-shrink-icon');
+    let isFullscreen = false;
+
+    if (fsBtn) {
+        fsBtn.addEventListener('click', () => {
+            if (window.nexAPI && window.nexAPI.toggleFullscreen) {
+                window.nexAPI.toggleFullscreen();
+            }
+        });
+    }
+
+    // Listen for fullscreen state changes from Electron
+    if (window.nexAPI && window.nexAPI.onFullscreenChange) {
+        window.nexAPI.onFullscreenChange((fs) => {
+            isFullscreen = fs;
+            document.body.classList.toggle('fullscreen', fs);
+            if (fsExpandIcon) fsExpandIcon.style.display = fs ? 'none' : '';
+            if (fsShrinkIcon) fsShrinkIcon.style.display = fs ? '' : 'none';
+        });
+    }
+
     // ─── Animation Loop ─────────────────────────────────
 
     function animate() {

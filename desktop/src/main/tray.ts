@@ -4,7 +4,7 @@
  */
 
 import { Tray, Menu, app, nativeImage } from 'electron'
-import { toggleWindow } from './window'
+import { toggleWindow, toggleFullscreen, isFullscreen } from './window'
 import { PythonBridge } from './python-bridge'
 
 let tray: Tray | null = null
@@ -19,6 +19,14 @@ function buildMenu(): Menu {
     {
       label: 'Show/Hide Nex',
       click: () => toggleWindow(),
+    },
+    {
+      label: isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen',
+      accelerator: 'CmdOrCtrl+Shift+F',
+      click: () => {
+        toggleFullscreen()
+        rebuildMenu()
+      },
     },
     {
       type: 'separator',
