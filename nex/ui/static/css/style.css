@@ -644,6 +644,45 @@ body:hover .nav-toggle:hover {
     line-height: 1.5;
 }
 
+/* ─── Audio Level Meter ─────────────────── */
+
+.audio-meter {
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 20px;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.audio-meter .bar {
+    width: 3px;
+    height: 4px;
+    min-height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    transition: height 80ms ease, background 200ms ease;
+}
+
+.audio-meter .bar.active {
+    background: #00d4ff;
+}
+
+.audio-meter.hearing .bar.active {
+    background: #00d4ff;
+}
+
+.audio-meter.error .bar {
+    background: rgba(255, 68, 68, 0.4);
+}
+
 /* ─── Conversation Feed ─────────────────── */
 
 .conversation-feed {
@@ -769,6 +808,7 @@ body:hover .nav-toggle:hover {
 .cf-success .cf-title { color: rgba(0, 255, 136, 0.85); }
 .cf-error .cf-title { color: rgba(255, 68, 68, 0.85); }
 .cf-thinking .cf-title { color: rgba(255, 170, 0, 0.85); }
+.cf-user .cf-title { color: rgba(255, 255, 255, 0.6); }
 
 /* ─── History Drawer ────────────────────── */
 

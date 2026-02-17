@@ -61,6 +61,7 @@ def _install_event_bridge(event_bus):
         "system.unlocked",
         "mic.listening",
         "mic.speech_detected",
+        "mic.level",
     ]
 
     for evt in event_types:

@@ -336,14 +336,24 @@
         switch (type) {
             case 'mic.transcribed':
                 showTranscript('> ' + (data.text || ''));
-                statusEl.textContent = 'HEARD YOU';
+                statusEl.textContent = 'PROCESSING';
+                statusEl.classList.add('active');
                 targetAmp = 0.5;
                 startSpeaking();
                 break;
 
             case 'command.response':
                 stopSpeaking();
-                showTranscript(data.text || '');
+                if (!data.command || !data.command.startsWith('_')) {
+                    showTranscript(data.text || '');
+                    // Brief "RESPONDING" state before going back to LISTENING
+                    statusEl.textContent = 'RESPONDING';
+                    statusEl.classList.add('active');
+                    setTimeout(() => {
+                        statusEl.classList.remove('active');
+                        statusEl.textContent = 'LISTENING';
+                    }, 2000);
+                }
                 targetAmp = 0.6;
                 setTimeout(() => { targetAmp = 0; }, 600);
                 break;
@@ -369,9 +379,45 @@
                 }, 2000);
                 break;
 
+            case 'mic.level':
+                updateAudioMeter(data.level || 0, data.recording || false);
+                break;
+
+            case 'mic.speech_detected':
+                if (data.active) {
+                    statusEl.textContent = 'HEARING';
+                    statusEl.classList.add('active');
+                }
+                break;
+
             case 'connected':
                 break;
         }
+    }
+
+    // ─── Audio Level Meter ────────────────────────────
+
+    const audioMeter = document.getElementById('audio-meter');
+    const meterBars = audioMeter ? audioMeter.querySelectorAll('.bar') : [];
+
+    function updateAudioMeter(level, recording) {
+        if (!audioMeter) return;
+        const barCount = meterBars.length;
+        // Create a symmetric pattern: edges lower, center higher
+        const mid = Math.floor(barCount / 2);
+        for (let i = 0; i < barCount; i++) {
+            const distFromCenter = Math.abs(i - mid);
+            const threshold = (barCount - distFromCenter) * (100 / barCount) * 0.6;
+            const isActive = level > threshold;
+            meterBars[i].classList.toggle('active', isActive);
+            if (isActive) {
+                const h = Math.max(4, Math.min(18, 4 + (level / 100) * 14 - distFromCenter * 2));
+                meterBars[i].style.height = h + 'px';
+            } else {
+                meterBars[i].style.height = '4px';
+            }
+        }
+        audioMeter.classList.toggle('hearing', recording);
     }
 
     function startSpeaking() {

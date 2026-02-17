@@ -130,8 +130,24 @@ class MicListener:
         if not self._running or self._muted:
             return
 
-        rms = np.sqrt(np.mean(indata ** 2))
+        rms = float(np.sqrt(np.mean(indata ** 2)))
         now = time.monotonic()
+
+        # Broadcast mic level ~10x/sec (every ~6 blocks at 16kHz/1024)
+        if not hasattr(self, '_level_counter'):
+            self._level_counter = 0
+        self._level_counter += 1
+        if self._level_counter % 6 == 0 and self._loop is not None:
+            level = min(100, int(rms * 5000))  # Scale RMS to 0-100
+            self._loop.call_soon_threadsafe(
+                lambda lvl=level, rec=self._recording: self._loop.create_task(
+                    self.event_bus.publish("mic.level", {
+                        "level": lvl,
+                        "recording": rec,
+                        "muted": self._muted,
+                    })
+                )
+            )
 
         if rms > SILENCE_THRESHOLD:
             # Speech detected
@@ -143,6 +159,13 @@ class MicListener:
                 self._speech_start = now
                 self._audio_buffer = []
                 logger.debug("Speech started")
+                # Notify UI that speech was detected
+                if self._loop is not None:
+                    self._loop.call_soon_threadsafe(
+                        lambda: self._loop.create_task(
+                            self.event_bus.publish("mic.speech_detected", {"active": True})
+                        )
+                    )
 
             self._audio_buffer.append(indata.copy())
 

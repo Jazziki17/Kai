@@ -12,8 +12,9 @@
     const COLLAPSE_LINES = 3;
 
     let entries = [];
-    let activeThinking = null;  // Current thinking entry ID
-    let commandStartTime = null; // For tracking processing time
+    let activeThinking = null;
+    let commandStartTime = null;
+    let lastUserCommand = '';
 
     // ─── Entry Management ──────────────────────────────
 
@@ -22,6 +23,7 @@
     }
 
     function formatTime(ms) {
+        if (ms == null) return null;
         if (ms < 1000) return (ms / 1000).toFixed(1) + 's';
         if (ms < 60000) return (ms / 1000).toFixed(1) + 's';
         const m = Math.floor(ms / 60000);
@@ -35,6 +37,11 @@
         return d.innerHTML;
     }
 
+    function truncate(s, max) {
+        if (!s) return '';
+        return s.length > max ? s.slice(0, max) + '\u2026' : s;
+    }
+
     function addEntry(type, title, lines, processingTimeMs) {
         // If we're replacing a thinking entry
         if (activeThinking) {
@@ -45,17 +52,16 @@
         const id = generateId();
         const entry = {
             id,
-            type,       // 'action' | 'thinking' | 'success' | 'error' | 'substep'
+            type,
             title,
             lines: lines || [],
-            processingTimeMs: processingTimeMs || null,
+            processingTimeMs: processingTimeMs != null ? processingTimeMs : null,
             timestamp: new Date(),
             expanded: false,
         };
 
         entries.unshift(entry);
 
-        // Trim to max visible + 1 (for fade-out animation)
         if (entries.length > MAX_VISIBLE + 1) {
             entries = entries.slice(0, MAX_VISIBLE + 1);
         }
@@ -83,14 +89,13 @@
 
         entries.forEach((entry, index) => {
             const opacity = OPACITY_LEVELS[index] ?? 0;
-            if (opacity === 0) return; // Don't render invisible entries
+            if (opacity === 0) return;
 
             const el = document.createElement('div');
             el.className = 'cf-entry cf-' + entry.type;
             el.style.opacity = opacity;
             el.dataset.id = entry.id;
 
-            // Dot prefix
             const dot = getDot(entry.type);
             const dotColor = getDotColor(entry.type);
 
@@ -108,12 +113,11 @@
 
             if (entry.type === 'thinking') {
                 titleSpan.textContent = entry.title;
-                // Animated dots
                 const dotsSpan = document.createElement('span');
                 dotsSpan.className = 'cf-thinking-dots';
                 for (let i = 0; i < 5; i++) {
                     const d = document.createElement('span');
-                    d.textContent = '\u25CF'; // ●
+                    d.textContent = '\u25CF';
                     d.style.animationDelay = (i * 0.2) + 's';
                     dotsSpan.appendChild(d);
                 }
@@ -125,7 +129,6 @@
                 titleLine.appendChild(dotSpan);
                 titleLine.appendChild(titleSpan);
 
-                // Processing time badge
                 if (entry.processingTimeMs != null) {
                     const badge = document.createElement('span');
                     badge.className = 'cf-time-badge';
@@ -149,7 +152,6 @@
                     linesContainer.appendChild(lineEl);
                 });
 
-                // Truncation indicator
                 if (!entry.expanded && entry.lines.length > COLLAPSE_LINES) {
                     const more = document.createElement('div');
                     more.className = 'cf-more';
@@ -159,7 +161,6 @@
 
                 el.appendChild(linesContainer);
 
-                // Hover to expand/collapse
                 el.addEventListener('mouseenter', () => {
                     if (entry.lines.length > COLLAPSE_LINES) {
                         entry.expanded = true;
@@ -181,10 +182,10 @@
     function getDot(type) {
         switch (type) {
             case 'action': return '\u23FA';   // ⏺
+            case 'user': return '\u23FA';     // ⏺
             case 'thinking': return '\u273B'; // ✻
             case 'success': return '\u2713';  // ✓
             case 'error': return '\u2717';    // ✗
-            case 'substep': return '\u23BF';  // ⎿
             default: return '\u23FA';
         }
     }
@@ -192,90 +193,94 @@
     function getDotColor(type) {
         switch (type) {
             case 'action': return '#00d4ff';
+            case 'user': return 'rgba(255,255,255,0.6)';
             case 'thinking': return '#ffaa00';
             case 'success': return '#00ff88';
             case 'error': return '#ff4444';
-            case 'substep': return '#888';
             default: return '#00d4ff';
         }
     }
 
     // ─── Event Wiring ──────────────────────────────────
 
-    // Track services used per command for history
     let currentServicesUsed = [];
 
+    // System ready — silent entry
     window.addEventListener('nex:system.ready', () => {
         addEntry('success', 'All systems ready', []);
     });
 
+    // Voice command transcribed
     window.addEventListener('nex:mic.transcribed', (e) => {
         const text = e.detail.text || '';
         commandStartTime = Date.now();
+        lastUserCommand = text;
         currentServicesUsed = ['stt'];
-        addEntry('action', 'Nex(' + truncate(text, 40) + ')', []);
+        addEntry('user', 'You \u2014 ' + truncate(text, 50), []);
         showThinking('Thinking...');
     });
 
+    // Typed command submitted
     window.addEventListener('nex:user.command', (e) => {
         const text = e.detail.text || '';
         commandStartTime = Date.now();
+        lastUserCommand = text;
         currentServicesUsed = [];
-        addEntry('action', 'Nex(' + truncate(text, 40) + ')', []);
+        addEntry('user', 'You \u2014 ' + truncate(text, 50), []);
         showThinking('Thinking...');
     });
 
+    // Tool executing
     window.addEventListener('nex:tool.executing', (e) => {
         const name = (e.detail.name || 'tool').replace(/_/g, ' ');
         currentServicesUsed.push(e.detail.name || 'tool');
+        // Replace thinking with tool-specific thinking
         if (activeThinking) {
             removeEntry(activeThinking);
+            activeThinking = null;
         }
         activeThinking = addEntry('thinking', 'Running ' + name + '...', []);
     });
 
+    // Command response — the main response handler
     window.addEventListener('nex:command.response', (e) => {
         const text = e.detail.text || '';
         const command = e.detail.command || '';
 
-        // Skip internal commands
+        // Skip internal/system commands
         if (command.startsWith('_')) return;
 
         const elapsed = commandStartTime ? Date.now() - commandStartTime : null;
         commandStartTime = null;
 
-        // Split long responses into lines
-        const lines = text.split('\n').filter(l => l.trim());
-        const title = lines.length > 0 ? truncate(lines[0], 60) : 'Response delivered';
-        const subLines = lines.length > 1 ? lines.slice(1) : [];
+        // Split response into title + lines
+        const allLines = text.split('\n').filter(l => l.trim());
+        const title = allLines.length > 0 ? truncate(allLines[0], 60) : 'Done.';
+        const subLines = allLines.length > 1 ? allLines.slice(1) : [];
 
-        addEntry('action', 'Response \u2014 ' + title, subLines, elapsed);
+        addEntry('action', 'Nex \u2014 ' + title, subLines, elapsed);
 
-        // Dispatch to history system
+        // Dispatch for history
         window.dispatchEvent(new CustomEvent('nex:conversation.complete', {
             detail: {
-                userPrompt: command,
+                userPrompt: lastUserCommand || command,
                 nexResponse: text,
                 processingTimeMs: elapsed,
                 servicesUsed: [...currentServicesUsed, 'tts'],
             }
         }));
         currentServicesUsed = [];
+        lastUserCommand = '';
     });
-
-    function truncate(s, max) {
-        return s.length > max ? s.slice(0, max) + '\u2026' : s;
-    }
 
     // ─── Visibility Control ────────────────────────────
 
-    // Show feed on dashboard and orb views
     window.addEventListener('nex:viewchange', (e) => {
         const view = e.detail.view;
         feed.classList.toggle('visible', view === 'dashboard' || view === 'orb');
     });
 
-    // Default visible on orb
+    // Default: visible on orb view
     feed.classList.add('visible');
 
     // Expose for external use
