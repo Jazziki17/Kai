@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEX</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -27,6 +27,9 @@
         <button class="nav-btn" data-view="settings" title="Settings">
             <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
+        <button class="nav-btn" id="history-toggle-btn" title="History (Ctrl+H)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </button>
     </nav>
 
     <!-- Status text -->
@@ -39,6 +42,9 @@
     <div class="command-bar" id="command-bar">
         <input type="text" id="command-input" placeholder="Type a command..." autocomplete="off" spellcheck="false">
     </div>
+
+    <!-- Conversation Feed (top-left, always visible on dashboard) -->
+    <div class="conversation-feed" id="conversation-feed"></div>
 
     <!-- Dashboard View -->
     <div class="view-overlay" id="dashboard-view">
@@ -139,10 +145,29 @@
         </div>
     </div>
 
+    <!-- History Drawer -->
+    <div class="history-drawer" id="history-drawer">
+        <div class="history-header">
+            <span class="history-title">PROMPT HISTORY</span>
+            <button class="history-close" id="history-close">&times;</button>
+        </div>
+        <div class="history-search">
+            <input type="text" id="history-search-input" placeholder="Search history..." autocomplete="off" spellcheck="false">
+        </div>
+        <div class="history-list" id="history-list"></div>
+        <div class="history-footer" id="history-footer">
+            <span id="history-stats">No history</span>
+            <button class="history-clear-btn" id="history-clear">Clear All History</button>
+        </div>
+    </div>
+    <div class="history-backdrop" id="history-backdrop"></div>
+
     <script src="js/nex-orb.js"></script>
     <script src="js/nex-dashboard.js"></script>
     <script src="js/nex-services.js"></script>
     <script src="js/nex-logs.js"></script>
     <script src="js/nex-settings.js"></script>
+    <script src="js/nex-conversation.js"></script>
+    <script src="js/nex-history.js"></script>
 </body>
 </html>

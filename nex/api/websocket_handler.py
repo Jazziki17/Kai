@@ -159,6 +159,17 @@ async def _handle_client_message(sender: WebSocket, msg: dict):
                 "source": "websocket",
             })
 
+    elif msg_type == "replay_tts":
+        # Replay a response via TTS
+        text = msg.get("text", "")
+        if text:
+            from nex.api.server import engine
+            if engine is not None:
+                await engine.event_bus.publish("command.response", {
+                    "text": text,
+                    "command": "_replay",
+                })
+
     elif msg_type == "ping":
         await sender.send_text(json.dumps({
             "type": "pong",

@@ -124,7 +124,5 @@
         addTranscriptItem('You', e.detail.text || '');
     });
 
-    window.addEventListener('nex:system.ready', () => {
-        addTranscriptItem('Nex', 'System ready.');
-    });
+    // system.ready — silent, handled by conversation feed
 })();

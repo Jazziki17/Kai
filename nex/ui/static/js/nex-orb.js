@@ -360,9 +360,13 @@
                 break;
 
             case 'system.ready':
-                showTranscript('Nex is ready.');
-                targetAmp = 0.4;
-                setTimeout(() => { targetAmp = 0; }, 500);
+                // Silent startup — no transcript, no orb pulse
+                statusEl.textContent = 'ONLINE';
+                statusEl.classList.add('active');
+                setTimeout(() => {
+                    statusEl.classList.remove('active');
+                    statusEl.textContent = 'LISTENING';
+                }, 2000);
                 break;
 
             case 'connected':

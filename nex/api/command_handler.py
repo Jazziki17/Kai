@@ -279,72 +279,8 @@ class CommandHandler:
         return True
 
     async def _on_system_ready(self, data: dict):
-        """Deliver a proactive briefing when Nex starts up."""
-        await asyncio.sleep(2)  # Let UI connect first
-        asyncio.create_task(self._deliver_briefing())
-
-    async def _deliver_briefing(self):
-        """Build and deliver the startup briefing without blocking."""
-        try:
-            briefing = await self._build_briefing()
-            if briefing:
-                await self.event_bus.publish("command.response", {"text": briefing, "command": "_briefing"})
-                asyncio.create_task(self._speak(briefing))
-        except Exception as e:
-            logger.warning(f"Briefing failed: {e}")
-
-    async def _build_briefing(self) -> str:
-        now = datetime.datetime.now()
-        hour = now.hour
-        if hour < 12:
-            greeting = "Good morning"
-        elif hour < 17:
-            greeting = "Good afternoon"
-        else:
-            greeting = "Good evening"
-
-        name = ""
-        if self.memory:
-            user = self.memory.memory.get("user", {})
-            name = f", {user['name']}" if user.get("name") else ""
-
-        parts = [f"{greeting}{name}. Nex is online."]
-
-        # Pending tasks
-        if self.memory:
-            pending = [t for t in self.memory.memory.get("tasks", []) if t["status"] == "pending"]
-            if pending:
-                high = sum(1 for t in pending if t.get("priority") == "high")
-                if high:
-                    parts.append(f"You have {len(pending)} pending tasks, {high} marked high priority.")
-                else:
-                    parts.append(f"You have {len(pending)} pending tasks.")
-
-        # System stats
-        try:
-            cpu = psutil.cpu_percent(interval=0.3)
-            mem = psutil.virtual_memory()
-            battery = psutil.sensors_battery()
-            stats = f"System is running at {cpu}% CPU, {mem.percent}% memory"
-            if battery:
-                stats += f", battery at {battery.percent}%"
-            stats += "."
-            parts.append(stats)
-        except Exception:
-            pass
-
-        # Weather (quick attempt with short timeout)
-        try:
-            async with httpx.AsyncClient(timeout=3.0) as client:
-                resp = await client.get("https://wttr.in/?format=%C+%t", headers={"User-Agent": "Nex/0.1"})
-                if resp.status_code == 200:
-                    weather = resp.text.strip()
-                    parts.append(f"Weather conditions: {weather}.")
-        except Exception:
-            pass
-
-        parts.append("How can I help you today?")
-        return " ".join(parts)
+        """Silent startup — no TTS, no narration. Visual-only."""
+        logger.info("System ready — standing by silently.")
 
     def _build_system_prompt(self) -> str:
         now = datetime.datetime.now()
