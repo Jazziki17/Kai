@@ -3,9 +3,9 @@
  */
 
 (() => {
-    const CYAN = '#00D9FF';
-    const CYAN_DIM = 'rgba(0, 217, 255, 0.3)';
-    const CYAN_FILL = 'rgba(0, 217, 255, 0.08)';
+    const CYAN = '#00FF41';
+    const CYAN_DIM = 'rgba(0, 255, 65, 0.3)';
+    const CYAN_FILL = 'rgba(0, 255, 65, 0.08)';
     const SEND_INTERVAL = 125; // ~8 FPS capture rate
     const JPEG_QUALITY = 0.6;
     const CAPTURE_W = 640;

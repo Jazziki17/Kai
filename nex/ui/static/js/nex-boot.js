@@ -182,7 +182,7 @@
                 this.ctx.beginPath();
                 this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 this.ctx.fillStyle = p.arrived
-                    ? `rgba(0, 212, 255, ${p.opacity})`
+                    ? `rgba(0, 255, 65, ${p.opacity})`
                     : `rgba(0, 255, 65, ${p.opacity * 0.7})`;
                 this.ctx.fill();
             }
@@ -193,9 +193,9 @@
                 const gradient = this.ctx.createRadialGradient(
                     this.cx, this.cy, 0, this.cx, this.cy, 80
                 );
-                gradient.addColorStop(0, `rgba(0, 212, 255, ${0.3 * glowIntensity})`);
-                gradient.addColorStop(0.5, `rgba(0, 212, 255, ${0.1 * glowIntensity})`);
-                gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+                gradient.addColorStop(0, `rgba(0, 255, 65, ${0.3 * glowIntensity})`);
+                gradient.addColorStop(0.5, `rgba(0, 255, 65, ${0.1 * glowIntensity})`);
+                gradient.addColorStop(1, 'rgba(0, 255, 65, 0)');
                 this.ctx.fillStyle = gradient;
                 this.ctx.fillRect(this.cx - 80, this.cy - 80, 160, 160);
             }
@@ -208,7 +208,7 @@
             if (this.shockwave > 0 && this.shockwave < 300) {
                 this.ctx.beginPath();
                 this.ctx.arc(this.cx, this.cy, this.shockwave * 3, 0, Math.PI * 2);
-                this.ctx.strokeStyle = `rgba(0, 212, 255, ${0.5 * (1 - this.shockwave / 300)})`;
+                this.ctx.strokeStyle = `rgba(0, 255, 65, ${0.5 * (1 - this.shockwave / 300)})`;
                 this.ctx.lineWidth = 2;
                 this.ctx.stroke();
                 this.shockwave += 4;

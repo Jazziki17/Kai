@@ -36,6 +36,11 @@ export function createWindow(): BrowserWindow {
 
   mainWindow.loadURL(`http://localhost:${PORT}/ui/`)
 
+  // Open in fullscreen by default
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.setFullScreen(true)
+  })
+
   mainWindow.on('closed', () => {
     mainWindow = null
   })

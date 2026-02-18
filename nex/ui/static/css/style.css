@@ -90,7 +90,7 @@ body::after {
 }
 
 .boot-prompt {
-    color: #00d4ff;
+    color: #00FF41;
     margin-right: 4px;
 }
 
@@ -211,8 +211,8 @@ body::after {
 }
 
 .sidebar-btn.active {
-    background: rgba(0, 212, 255, 0.08);
-    color: #00d4ff;
+    background: rgba(0, 255, 65, 0.08);
+    color: #00FF41;
 }
 
 .sidebar-btn.active::before {
@@ -223,7 +223,7 @@ body::after {
     transform: translateY(-50%);
     width: 3px;
     height: 20px;
-    background: #00d4ff;
+    background: #00FF41;
     border-radius: 0 3px 3px 0;
 }
 
@@ -357,8 +357,8 @@ body::after {
 }
 
 .command-bar input:focus {
-    border-color: rgba(0, 212, 255, 0.25);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(0, 255, 65, 0.4);
+    background: rgba(0, 255, 65, 0.04);
 }
 
 /* ─── View Overlays ──────────────────────── */
@@ -826,11 +826,11 @@ body::after {
 }
 
 .audio-meter .bar.active {
-    background: #00d4ff;
+    background: #00FF41;
 }
 
 .audio-meter.hearing .bar.active {
-    background: #00d4ff;
+    background: #00FF41;
 }
 
 .audio-meter.error .bar {
@@ -1107,8 +1107,8 @@ body::after {
 }
 
 .history-item-replay:hover {
-    background: rgba(0, 212, 255, 0.12);
-    color: rgba(0, 212, 255, 0.8);
+    background: rgba(0, 255, 65, 0.12);
+    color: rgba(0, 255, 65, 0.8);
 }
 
 .history-item-prompt {
@@ -1218,8 +1218,8 @@ body::after {
 }
 
 .vision-mode-btn.active {
-    background: rgba(0, 217, 255, 0.12);
-    color: #00D9FF;
+    background: rgba(0, 255, 65, 0.12);
+    color: #00FF41;
 }
 
 .vision-feed {
@@ -1227,7 +1227,7 @@ body::after {
     width: 100%;
     aspect-ratio: 4 / 3;
     background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(0, 217, 255, 0.12);
+    border: 1px solid rgba(0, 255, 65, 0.12);
     border-radius: 12px;
     overflow: hidden;
 }
@@ -1320,7 +1320,7 @@ body::after {
     font-family: 'JetBrains Mono', monospace;
     font-size: 16px;
     font-weight: 500;
-    color: #00D9FF;
+    color: #00FF41;
 }
 
 .vision-detections {
@@ -1359,7 +1359,7 @@ body::after {
 
 .vision-det-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, rgba(0, 217, 255, 0.4), rgba(0, 217, 255, 0.8));
+    background: linear-gradient(90deg, rgba(0, 255, 65, 0.4), rgba(0, 255, 65, 0.8));
     border-radius: 2px;
     transition: width 0.3s ease;
 }
@@ -1367,7 +1367,7 @@ body::after {
 .vision-det-conf {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    color: rgba(0, 217, 255, 0.7);
+    color: rgba(0, 255, 65, 0.7);
     min-width: 32px;
     text-align: right;
 }
@@ -1381,10 +1381,10 @@ body::after {
 
 .vision-start-btn {
     padding: 10px 24px;
-    background: rgba(0, 217, 255, 0.08);
-    border: 1px solid rgba(0, 217, 255, 0.25);
+    background: rgba(0, 255, 65, 0.08);
+    border: 1px solid rgba(0, 255, 65, 0.25);
     border-radius: 20px;
-    color: #00D9FF;
+    color: #00FF41;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 500;
@@ -1396,8 +1396,8 @@ body::after {
 }
 
 .vision-start-btn:hover {
-    background: rgba(0, 217, 255, 0.15);
-    border-color: rgba(0, 217, 255, 0.4);
+    background: rgba(0, 255, 65, 0.15);
+    border-color: rgba(0, 255, 65, 0.4);
 }
 
 .vision-start-btn.active {
@@ -1426,7 +1426,7 @@ body::after {
 }
 
 .vision-slider-label span {
-    color: #00D9FF;
+    color: #00FF41;
     font-family: 'JetBrains Mono', monospace;
 }
 
@@ -1446,7 +1446,7 @@ body::after {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #00D9FF;
+    background: #00FF41;
     cursor: pointer;
     border: 2px solid rgba(0, 0, 0, 0.5);
 }
@@ -1455,7 +1455,7 @@ body::after {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #00D9FF;
+    background: #00FF41;
     cursor: pointer;
     border: 2px solid rgba(0, 0, 0, 0.5);
 }
@@ -1549,7 +1549,7 @@ body.fullscreen .view-overlay {
 }
 
 .workspace-pin.pinned {
-    color: #00d4ff;
+    color: #00FF41;
 }
 
 .workspace-output {
@@ -1615,7 +1615,7 @@ body.fullscreen .view-overlay {
 }
 
 .ws-tool-args span {
-    color: #00d4ff;
+    color: #00FF41;
     opacity: 0.7;
 }
 
@@ -1708,9 +1708,9 @@ body.workspace-open .view-overlay {
     background: linear-gradient(
         to right,
         transparent 0%,
-        rgba(0, 212, 255, 0.15) 20%,
-        rgba(0, 212, 255, 0.4) 50%,
-        rgba(0, 212, 255, 0.15) 80%,
+        rgba(0, 255, 65, 0.15) 20%,
+        rgba(0, 255, 65, 0.4) 50%,
+        rgba(0, 255, 65, 0.15) 80%,
         transparent 100%
     );
     pointer-events: none;
@@ -1741,11 +1741,11 @@ body.workspace-open .view-overlay {
 /* ─── Enhanced Glow Effects ──────────────── */
 
 .sidebar-btn.active svg {
-    filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.5));
+    filter: drop-shadow(0 0 6px rgba(0, 255, 65, 0.5));
 }
 
 .status.active {
-    text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+    text-shadow: 0 0 12px rgba(0, 255, 65, 0.5);
 }
 
 .status.tool-active {

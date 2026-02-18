@@ -190,12 +190,12 @@
 
     function getDotColor(type) {
         switch (type) {
-            case 'action': return '#00d4ff';
+            case 'action': return '#00FF41';
             case 'user': return 'rgba(255,255,255,0.6)';
             case 'thinking': return '#ffaa00';
             case 'success': return '#00ff88';
             case 'error': return '#ff4444';
-            default: return '#00d4ff';
+            default: return '#00FF41';
         }
     }
 

@@ -15,6 +15,12 @@
     let blockCount = 0;
     const MAX_BLOCKS = 50;
 
+    // Only auto-open workspace for these file/terminal tools
+    const WORKSPACE_TOOLS = new Set([
+        'run_shell_command', 'create_file', 'read_file',
+        'list_directory', 'search_files', 'fetch_webpage',
+    ]);
+
     function open() {
         if (!pane.classList.contains('open')) {
             if (window.NexSounds) window.NexSounds.play('workspaceSlide');
@@ -79,13 +85,16 @@
         return null;
     }
 
-    // Tool executing: create block with RUNNING badge
+    // Tool executing: create block with RUNNING badge (only auto-open for file/terminal tools)
     window.addEventListener('nex:tool.executing', (e) => {
         const { name } = e.detail || {};
         if (!name) return;
 
-        clearAutoHide();
-        open();
+        // Only auto-open for file/terminal tools
+        if (WORKSPACE_TOOLS.has(name)) {
+            clearAutoHide();
+            open();
+        }
 
         const block = document.createElement('div');
         block.className = 'ws-tool-block';

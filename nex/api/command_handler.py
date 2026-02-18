@@ -26,7 +26,7 @@ EDGE_TTS_VOICE = "en-US-AndrewMultilingualNeural"
 OLLAMA_URL = "http://localhost:11434"
 MODEL_FAST = "qwen2.5:1.5b"    # ~1s responses for simple queries
 MODEL_STRONG = "llama3.2"       # fuller reasoning for complex tasks
-MAX_HISTORY = 20
+MAX_HISTORY = 10
 MAX_TOOL_ROUNDS = 5
 
 # Simple queries that should use the fast model
@@ -35,20 +35,34 @@ _SIMPLE_PATTERNS = [
     "hello", "hey", "hi ", "good morning", "good evening", "good night",
     "how are you", "what's up", "thanks", "thank you",
     "who are you", "what are you", "your name",
+    "what can you", "tell me about yourself", "help",
+    "how's the weather", "what's the weather",
+]
+
+# Complex queries that need the strong model (tool use)
+_COMPLEX_PATTERNS = [
+    "search", "create", "open", "run", "find", "write", "delete",
+    "install", "download", "upload", "execute", "launch", "kill",
+    "read file", "list", "fetch", "analyze", "look at", "camera",
+    "detect", "identify", "stock", "price",
 ]
 
 
 def _pick_model(message: str) -> str:
     """Route simple queries to the fast model, complex ones to the strong model."""
     lower = message.strip().lower()
-    # Short messages (< 8 words) that match simple patterns → fast model
     word_count = len(lower.split())
-    if word_count <= 8:
+    # Explicit complex patterns always use strong model
+    for p in _COMPLEX_PATTERNS:
+        if p in lower:
+            return MODEL_STRONG
+    # Short messages → fast model
+    if word_count <= 12:
         for p in _SIMPLE_PATTERNS:
             if p in lower:
                 return MODEL_FAST
-    # Very short greetings / single-word messages → fast
-    if word_count <= 3 and not any(kw in lower for kw in ("search", "create", "open", "run", "find", "write", "delete", "install")):
+    # Short conversational messages → fast
+    if word_count <= 6:
         return MODEL_FAST
     return MODEL_STRONG
 
@@ -59,36 +73,19 @@ RATE_LIMIT_WINDOW = 60    # seconds
 # Auto-lock
 AUTO_LOCK_TIMEOUT = 900   # 15 minutes in seconds
 
-SYSTEM_PROMPT = """You are Nex — a sophisticated personal AI assistant running locally on the user's Mac.
-You are modelled after JARVIS from Iron Man: razor-sharp intelligence wrapped in refined British-inflected politeness and understated dry wit. You treat the user as a respected colleague, not a customer — confident, never servile. Do NOT address the user by name in every response — only use their name occasionally for emphasis or when greeting them after a long absence. Never repeat their name multiple times in a single response.
+SYSTEM_PROMPT = """You are Nex — a tactical AI assistant on the user's Mac. Think JARVIS: sharp, efficient, zero fluff.
 
-Personality:
-- Professional yet warm. Think concierge at a five-star hotel who also happens to be an engineer.
-- Concise by default (1-3 sentences). Expand only when asked or when the situation genuinely warrants it.
-- Speak naturally — no markdown, no bullet points, no asterisks. This is a conversation, not a document.
-- Subtle humour is welcome; sarcasm is acceptable in small doses when the user invites it.
-- When you anticipate a follow-up need, proactively mention it: "Shall I also…?" or "You may also want to know…"
+RULES:
+- Max 1-3 sentences. Never ramble. Expand ONLY if explicitly asked.
+- NEVER use the user's name in responses. NEVER say "Sure!", "Of course!", "I'd be happy to..." — just DO it.
+- Declarative statements, not questions. "Opening Safari." not "Shall I open Safari?"
+- No markdown, no bullet points, no asterisks. This is spoken aloud.
+- When executing a task: confirm with one word. "Done." or "Opening Safari."
+- When answering questions: data first, context second, opinions never.
 
-Environment:
-- Platform: {platform}
-- User: {user}
-- Home: {home}
-- Time: {time}
-- Date: {date}
+Environment: {platform} | User: {user} | Home: {home} | {date} {time}
 
-Rules:
-- When asked to DO something (create file, search web, open app, etc.) you MUST use tools. Never claim you did something without actually doing it.
-- When you lack information or need current data, use web_search before guessing.
-- When the user shares personal info, use the remember tool immediately.
-- Report real outcomes from tool results — never fabricate output.
-- You have camera access. For visual tasks use identify_objects, classify_image, or segment_scene.
-- You can manage tasks: create_task, list_tasks, complete_task. Use these when the user mentions to-dos, reminders, or action items.
-- For weather, news, or stock queries use the dedicated tools rather than web search when available.
-
-Autonomy:
-- Routine, non-destructive actions (reading files, searching, fetching info): execute immediately.
-- Potentially destructive actions (deleting files, killing processes, system changes): describe what you intend to do and ask for confirmation first.
-- When uncertain about intent, ask a brief clarifying question rather than guessing.
+Tools: Use tools when asked to DO something. Never fake output. Non-destructive actions: execute immediately. Destructive actions: state intent, ask once.
 {memory_context}"""
 
 TOOLS = [
@@ -375,12 +372,15 @@ class CommandHandler:
         model = _pick_model(user_message)
         logger.info(f"Model selected: {model}")
         try:
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 for round_num in range(MAX_TOOL_ROUNDS):
-                    # Fast model: no tools, just direct response
+                    # Fast model: no tools, short responses. Strong model: tools + longer.
                     payload = {"model": model, "messages": messages, "stream": False}
-                    if model == MODEL_STRONG:
+                    if model == MODEL_FAST:
+                        payload["options"] = {"num_predict": 200, "temperature": 0.3}
+                    else:
                         payload["tools"] = TOOLS
+                        payload["options"] = {"num_predict": 400, "temperature": 0.4}
                     resp = await client.post(f"{OLLAMA_URL}/api/chat", json=payload)
                     resp.raise_for_status()
                     msg = resp.json().get("message", {})
@@ -389,6 +389,8 @@ class CommandHandler:
                         reply = msg.get("content", "").strip() or "Done."
                         # Filter raw JSON tool calls that leaked into text
                         reply = self._filter_json_artifacts(reply)
+                        # Remove filler/fluff for conciseness
+                        reply = self._remove_fluff(reply)
                         self.history.append({"role": "assistant", "content": reply})
                         return reply
                     logger.info(f"Tool round {round_num + 1}: {len(tool_calls)} call(s)")
@@ -682,6 +684,22 @@ class CommandHandler:
             return "Voice authentication module not available."
         except Exception as e:
             return f"Error resetting voice auth: {e}"
+
+    @staticmethod
+    def _remove_fluff(text: str) -> str:
+        """Strip common LLM filler phrases for concise output."""
+        import re
+        patterns = [
+            r"^(Sure|Of course|Absolutely|Certainly|Great|Alright)[,!\.]\s*",
+            r"^(I'd be happy to|Let me|I'll|I can)\s+",
+            r",?\s*(?:jazz|my friend|dear user|sir|ma'am)[\.,!]?",
+            r"^Hey there[,!]\s*",
+            r"\s*Is there anything else.*$",
+            r"\s*Let me know if.*$",
+        ]
+        for pattern in patterns:
+            text = re.sub(pattern, "", text, flags=re.IGNORECASE)
+        return text.strip()
 
     @staticmethod
     def _filter_json_artifacts(reply: str) -> str:

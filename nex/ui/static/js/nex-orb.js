@@ -75,7 +75,7 @@
                 const dist = dx * dx + dy * dy;
                 if (dist < 6000) {
                     const alpha = (1 - dist / 6000) * 0.08;
-                    ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+                    ctx.strokeStyle = `rgba(0, 255, 65, ${alpha})`;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
                     ctx.lineTo(particles[j].x, particles[j].y);
@@ -184,9 +184,9 @@
 
         // Outer cyan glow (large, soft)
         const outerGlow = ctx.createRadialGradient(cx, cy, radius * 0.3, cx, cy, radius * 1.6);
-        outerGlow.addColorStop(0, `rgba(0, 212, 255, ${(0.04 + voiceAmp * 0.06) * (0.7 + pulse * 0.3)})`);
-        outerGlow.addColorStop(0.4, `rgba(0, 180, 255, ${(0.02 + voiceAmp * 0.03) * (0.7 + pulse * 0.3)})`);
-        outerGlow.addColorStop(1, 'rgba(0, 100, 200, 0)');
+        outerGlow.addColorStop(0, `rgba(0, 255, 65, ${(0.04 + voiceAmp * 0.06) * (0.7 + pulse * 0.3)})`);
+        outerGlow.addColorStop(0.4, `rgba(0, 200, 65, ${(0.02 + voiceAmp * 0.03) * (0.7 + pulse * 0.3)})`);
+        outerGlow.addColorStop(1, 'rgba(0, 100, 30, 0)');
         ctx.beginPath();
         ctx.arc(cx, cy, radius * 1.6, 0, Math.PI * 2);
         ctx.fillStyle = outerGlow;
@@ -194,9 +194,9 @@
 
         // Inner glow (warm white-cyan)
         const glow = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, radius * 1.1);
-        glow.addColorStop(0, `rgba(200, 230, 255, ${0.04 + voiceAmp * 0.05})`);
-        glow.addColorStop(0.5, `rgba(0, 180, 240, ${0.02 + voiceAmp * 0.03})`);
-        glow.addColorStop(1, 'rgba(0, 100, 200, 0)');
+        glow.addColorStop(0, `rgba(200, 255, 200, ${0.04 + voiceAmp * 0.05})`);
+        glow.addColorStop(0.5, `rgba(0, 200, 65, ${0.02 + voiceAmp * 0.03})`);
+        glow.addColorStop(1, 'rgba(0, 100, 30, 0)');
         ctx.beginPath();
         ctx.arc(cx, cy, radius * 1.1, 0, Math.PI * 2);
         ctx.fillStyle = glow;
@@ -212,9 +212,9 @@
         ctx.beginPath();
         ctx.arc(cx, cy, radius * 0.65, 0, Math.PI * 2);
         const ringAlpha = 0.3 + voiceAmp * 0.35 + pulse * 0.1;
-        ctx.strokeStyle = `rgba(0, 212, 255, ${ringAlpha})`;
+        ctx.strokeStyle = `rgba(0, 255, 65, ${ringAlpha})`;
         ctx.lineWidth = 1.5 + voiceAmp * 0.5;
-        ctx.shadowColor = 'rgba(0, 212, 255, 0.4)';
+        ctx.shadowColor = 'rgba(0, 255, 65, 0.4)';
         ctx.shadowBlur = 12 + voiceAmp * 8;
         ctx.stroke();
         ctx.shadowBlur = 0;
@@ -224,9 +224,9 @@
         ctx.font = `300 ${fontSize}px 'Inter', sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+        ctx.shadowColor = 'rgba(0, 255, 65, 0.5)';
         ctx.shadowBlur = 8 + voiceAmp * 6;
-        ctx.fillStyle = `rgba(220, 240, 255, ${0.65 + voiceAmp * 0.3})`;
+        ctx.fillStyle = `rgba(200, 255, 200, ${0.65 + voiceAmp * 0.3})`;
         const letters = 'NEX';
         const spacing = fontSize * 0.55;
         const startX = cx - ((letters.length - 1) * spacing) / 2;
@@ -258,8 +258,8 @@
             ctx.arc(0, 0, radius, arc.start, arc.end);
             const arcAlpha = arc.a + voiceAmp * arc.a * 0.5;
             ctx.strokeStyle = arc.r < 1.5
-                ? `rgba(0, 212, 255, ${arcAlpha})`
-                : `rgba(200, 230, 255, ${arcAlpha})`;
+                ? `rgba(0, 255, 65, ${arcAlpha})`
+                : `rgba(200, 255, 200, ${arcAlpha})`;
             ctx.lineWidth = arc.w;
             ctx.lineCap = 'round';
             ctx.stroke();
@@ -360,7 +360,7 @@
             statusEl.classList.add('active');
             setTimeout(() => {
                 statusEl.classList.remove('active');
-                statusEl.textContent = 'LISTENING';
+                statusEl.textContent = 'IDLE';
             }, 1500);
         };
 
@@ -406,7 +406,7 @@
                     statusEl.classList.add('active');
                     setTimeout(() => {
                         statusEl.classList.remove('active');
-                        statusEl.textContent = 'LISTENING';
+                        statusEl.textContent = 'IDLE';
                     }, 2000);
                 }
                 targetAmp = 0.6;
@@ -432,7 +432,7 @@
                 statusEl.classList.add('active');
                 setTimeout(() => {
                     statusEl.classList.remove('active');
-                    statusEl.textContent = 'LISTENING';
+                    statusEl.textContent = 'IDLE';
                 }, 2000);
                 break;
 
@@ -442,7 +442,7 @@
 
             case 'mic.speech_detected':
                 if (data.active) {
-                    statusEl.textContent = 'HEARING';
+                    statusEl.textContent = 'LISTENING';
                     statusEl.classList.add('active');
                 }
                 break;
@@ -490,7 +490,7 @@
         targetAmp = 0;
         statusEl.classList.remove('active');
         statusEl.classList.remove('tool-active');
-        statusEl.textContent = 'LISTENING';
+        statusEl.textContent = 'IDLE';
     }
 
     let transcriptTimer = null;
@@ -541,10 +541,22 @@
     });
 
     canvas.addEventListener('click', () => {
-        if (!commandVisible) {
-            targetAmp = 0.9;
-            setTimeout(() => { targetAmp = 0; }, 300);
+        targetAmp = 0.9;
+        setTimeout(() => { targetAmp = 0; }, 300);
+        // Trigger push-to-talk: tell backend to start listening
+        if (ws && wsConnected) {
+            ws.send(JSON.stringify({ type: 'push_to_talk' }));
         }
+        statusEl.textContent = 'LISTENING';
+        statusEl.classList.add('active');
+        if (window.NexSounds) window.NexSounds.play('buttonClick');
+        // Revert to IDLE after 5s if no speech detected
+        setTimeout(() => {
+            if (statusEl.textContent === 'LISTENING') {
+                statusEl.classList.remove('active');
+                statusEl.textContent = 'IDLE';
+            }
+        }, 5000);
     });
 
     // ─── Fullscreen Toggle ───────────────────────────────
