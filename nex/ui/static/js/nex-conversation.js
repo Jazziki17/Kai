@@ -7,8 +7,7 @@
     const feed = document.getElementById('conversation-feed');
     if (!feed) return;
 
-    const MAX_VISIBLE = 5;
-    const OPACITY_LEVELS = [1.0, 0.85, 0.65, 0.40, 0.20];
+    const MAX_VISIBLE = 50;
     const COLLAPSE_LINES = 3;
 
     let entries = [];
@@ -60,10 +59,10 @@
             expanded: false,
         };
 
-        entries.unshift(entry);
+        entries.push(entry);
 
-        if (entries.length > MAX_VISIBLE + 1) {
-            entries = entries.slice(0, MAX_VISIBLE + 1);
+        if (entries.length > MAX_VISIBLE) {
+            entries = entries.slice(-MAX_VISIBLE);
         }
 
         render();
@@ -88,12 +87,8 @@
         feed.innerHTML = '';
 
         entries.forEach((entry, index) => {
-            const opacity = OPACITY_LEVELS[index] ?? 0;
-            if (opacity === 0) return;
-
             const el = document.createElement('div');
             el.className = 'cf-entry cf-' + entry.type;
-            el.style.opacity = opacity;
             el.dataset.id = entry.id;
 
             const dot = getDot(entry.type);
@@ -177,6 +172,9 @@
 
             feed.appendChild(el);
         });
+
+        // Auto-scroll to bottom (newest messages)
+        feed.scrollTop = feed.scrollHeight;
     }
 
     function getDot(type) {

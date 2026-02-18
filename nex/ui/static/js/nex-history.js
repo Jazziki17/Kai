@@ -13,46 +13,11 @@
     const toggleBtn = document.getElementById('history-toggle-btn');
 
     let historyData = [];
-    let isOpen = false;
 
-    // ─── Toggle Drawer ─────────────────────────────────
+    // ─── Always-visible sidebar — load on init ──────────
 
-    function openDrawer() {
-        isOpen = true;
-        drawer.classList.add('open');
-        backdrop.classList.add('open');
-        loadHistory();
-    }
-
-    function closeDrawer() {
-        isOpen = false;
-        drawer.classList.remove('open');
-        backdrop.classList.remove('open');
-        if (searchInput) searchInput.value = '';
-    }
-
-    function toggleDrawer() {
-        if (isOpen) closeDrawer();
-        else openDrawer();
-    }
-
-    // Keyboard shortcut: Ctrl+H / Cmd+H
-    document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
-            e.preventDefault();
-            toggleDrawer();
-        }
-        if (e.key === 'Escape' && isOpen) {
-            closeDrawer();
-        }
-    });
-
-    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-    if (backdrop) backdrop.addEventListener('click', closeDrawer);
-    if (toggleBtn) toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleDrawer();
-    });
+    // Load history immediately (sidebar is always visible)
+    loadHistory();
 
     // ─── Load History ──────────────────────────────────
 
@@ -225,6 +190,8 @@
                     servicesUsed,
                 }),
             });
+            // Auto-refresh the sidebar
+            loadHistory();
         } catch (e) {
             console.error('Failed to save history entry:', e);
         }

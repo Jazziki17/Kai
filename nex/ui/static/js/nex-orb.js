@@ -307,6 +307,9 @@
             btn.classList.toggle('active', btn.dataset.view === view);
         });
 
+        // Show/hide command bar based on view
+        commandBar.classList.toggle('visible', view === 'orb');
+
         // Dispatch event for sub-modules
         window.dispatchEvent(new CustomEvent('nex:viewchange', { detail: { view } }));
     };
@@ -502,22 +505,19 @@
 
     // ─── Command Input ──────────────────────────────────
 
-    let commandVisible = false;
+    // Command bar is always visible in orb view — Enter/Escape control focus only
+    commandBar.classList.add('visible');
 
     document.addEventListener('keydown', (e) => {
-        if ((e.key === '/' || e.key === 'Enter') && !commandVisible && currentView === 'orb') {
+        if ((e.key === '/' || e.key === 'Enter') && currentView === 'orb' && !commandInput.matches(':focus')) {
             e.preventDefault();
-            commandBar.classList.add('visible');
             commandInput.focus();
-            commandVisible = true;
         }
-        if (e.key === 'Escape' && commandVisible) {
+        if (e.key === 'Escape' && commandInput.matches(':focus')) {
             e.preventDefault();
             e.stopPropagation();
-            commandBar.classList.remove('visible');
             commandInput.blur();
             commandInput.value = '';
-            commandVisible = false;
         }
     });
 
@@ -527,8 +527,6 @@
             const text = commandInput.value.trim();
             if (text) {
                 commandInput.value = '';
-                commandBar.classList.remove('visible');
-                commandVisible = false;
                 showTranscript('> ' + text);
                 window.dispatchEvent(new CustomEvent('nex:user.command', { detail: { text } }));
                 if (ws && wsConnected) {
@@ -537,10 +535,7 @@
                 if (window.NexSounds) window.NexSounds.play('messageSend');
                 startSpeaking();
             } else {
-                // Empty Enter closes the command bar
-                commandBar.classList.remove('visible');
                 commandInput.blur();
-                commandVisible = false;
             }
         }
     });
